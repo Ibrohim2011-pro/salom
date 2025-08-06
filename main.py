@@ -6,8 +6,7 @@ app = FastAPI()
 
 @app.get("/")
 async def home():
-    x = await Users.all()
-    return {"data": x}
+    return {"data": Users.all()}
 
 @app.get("/add")
 async def home(fullname: str, age: int, email: str, password: str):
@@ -17,5 +16,6 @@ async def home(fullname: str, age: int, email: str, password: str):
     except:
         return {"status": "error"} 
     
+
 
 register_tortoise(app, modules={"models": ["models"]}, db_url="sqlite://users.db")
