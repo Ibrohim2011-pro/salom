@@ -1,21 +1,29 @@
-from fastapi import FastAPI, Request
-from  tortoise.contrib.fastapi import register_tortoise
+from fastapi import FastAPI
+from tortoise.contrib.fastapi import register_tortoise
 from models import Users
 
 app = FastAPI()
 
 @app.get("/")
-async def home():
-    return {"data": Users.all()}
+async def get_users():
+    x = await Users.all().values()  # JSON-friendly format
+    return {"data": x}
 
 @app.get("/add")
-async def home(fullname: str, age: int, email: str, password: str):
-    try:
-        x = await Users.create(fullname=fullname, age=age, email=email, password=password)
-        return {"status": "success" }
-    except:
-        return {"status": "error"} 
-    
+async def add_user(fullname: str, age: int, email: str, password: str):
+    user = await Users.create(
+        fullname=fullname,
+        age=age,
+        email=email,
+        password=password
+    )
+    if user:
+        return {"status": "success"}
+    return {"status": "error"}
 
-
-register_tortoise(app, modules={"models": ["models"]}, db_url="sqlite://users.db")
+register_tortoise(
+    app,
+    modules={"models": ["models"]},
+    db_url="sqlite://users.db",
+    generate_schemas=True
+)
